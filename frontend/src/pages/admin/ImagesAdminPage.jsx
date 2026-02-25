@@ -13,7 +13,7 @@ export default function ImagesAdminPage() {
   const { mutate: upload }                        = useUploadImage()
   const { mutate: deleteImg, isPending: deleting } = useDeleteImage()
 
-  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+  const baseUrl = import.meta.env.VITE_APP_URL || 'http://localhost:8000'
   const images = data?.data || []
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -82,11 +82,11 @@ export default function ImagesAdminPage() {
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
           {images.map(img => (
             <div key={img.id} className="group relative aspect-square rounded-2xl overflow-hidden bg-neutral-100">
-              <img
-                src={`${apiUrl}/storage/${img.path}`}
-                alt={img.filename}
-                className="w-full h-full object-cover"
-              />
+            <img
+              src={`${baseUrl}/storage/${img.path}`}
+              alt={img.filename}
+              className="w-full h-full object-cover"
+            />
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all flex items-center justify-center">
                 <button
                   onClick={() => setDeleteId(img.id)}
