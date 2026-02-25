@@ -31,7 +31,15 @@ class ProductImageController extends Controller
             'sort_order' => $product->images()->count(),
         ]);
 
-        return response()->json(['data' => $image, 'message' => 'Imagen subida correctamente.'], 201);
+                return response()->json([
+            'data' => [
+                'id' => $image->id,
+                'url' => asset('storage/' . $image->path), // 👈 ESTA ES LA CLAVE
+                'filename' => $image->filename,
+                'is_primary' => $image->is_primary,
+            ],
+                'message' => 'Imagen subida correctamente.'
+        ], 201);
     }
 
     public function destroy(Product $product, ProductImage $image)
