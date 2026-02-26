@@ -39,7 +39,9 @@ Route::prefix('v1')->group(function () {
         Route::get('/auth/me', [AdminAuthController::class, 'me']);
         Route::post('/auth/logout', [AdminAuthController::class, 'logout']);
 
-        // Products CRUD
+        // Products CRUD (admin)
+        Route::get('/admin/products', [ProductController::class, 'index']);        // ← agrega
+        Route::get('/admin/products/{product}', [ProductController::class, 'show']); // ← agrega
         Route::apiResource('products', ProductController::class)->except(['index', 'show']);
 
         // Product Images
