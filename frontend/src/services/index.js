@@ -18,6 +18,11 @@ export const productsService = {
     api.patch(`/products/${productId}/images/${imageId}/primary`).then((r) => r.data),
 }
 
+export const publicProductsService = {
+  getAll: (params = {}) => api.get('/products', { params }).then((r) => r.data),
+  getOne: (id) => api.get(`/products/${id}`).then((r) => r.data),
+}
+
 export const categoriesService = {
   getAll: () => api.get('/categories').then((r) => r.data),
   create: (data) => api.post('/categories', data).then((r) => r.data),

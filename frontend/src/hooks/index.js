@@ -1,8 +1,16 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { productsService, categoriesService, siteTextsService } from '../services'
+import { productsService, categoriesService, siteTextsService, publicProductsService } from '../services'
 import toast from 'react-hot-toast'
 
 // ──── Products ────────────────────────────────────────────────────────────────
+
+export function usePublicProducts(params) {
+  return useQuery({
+    queryKey: ['public-products', params],
+    queryFn: () => publicProductsService.getAll(params),
+  })
+}
+
 
 export function useProducts(params) {
   return useQuery({

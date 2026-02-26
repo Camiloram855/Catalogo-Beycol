@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Search, SlidersHorizontal, X } from 'lucide-react'
-import { useProducts, useCategories } from '../../hooks'
+import { usePublicProducts, useCategories } from '../../hooks'
 import ProductCard from '../../components/public/ProductCard'
 import { LoadingPage, Pagination, EmptyState } from '../../components/ui'
 import { Package } from 'lucide-react'
@@ -17,7 +17,7 @@ export default function CatalogPage() {
 
   const selectedCategory = categories?.data?.find((c) => c.slug === categorySlug)
 
-  const { data, isLoading } = useProducts({
+  const { data, isLoading } = usePublicProducts({
     search: searchParams.get('q') || undefined,
     category_id: selectedCategory?.id || undefined,
     page,
