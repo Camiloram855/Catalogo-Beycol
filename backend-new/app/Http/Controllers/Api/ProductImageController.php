@@ -6,27 +6,39 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\ProductImage;
 use Illuminate\Http\Request;
-
+use Cloudinary\Cloudinary;
 
 class ProductImageController extends Controller
 {
+    private function cloudinary(): Cloudinary
+    {
+        return new Cloudinary([
+            'cloud' => [
+                'cloud_name' => env('CLOUDINARY_CLOUD_NAME'),
+                'api_key'    => env('CLOUDINARY_API_KEY'),
+                'api_secret' => env('CLOUDINARY_API_SECRET'),
+            ],
+        ]);
+    }
+
     public function store(Request $request, Product $product)
     {
         $request->validate([
             'image' => 'required|image|max:5120|mimes:jpg,jpeg,png,webp,gif',
         ]);
 
-        $result = cloudinary()->uploadFile($request->file('image')->getRealPath(), [
-            'folder' => "products/{$product->id}",
-        ]);
+        $result = $this->cloudinary()->uploadApi()->upload(
+            $request->file('image')->getRealPath(),
+            ['folder' => "products/{$product->id}"]
+        );
 
         $isPrimary = $product->images()->count() === 0;
 
         $image = ProductImage::create([
             'product_id' => $product->id,
-            'path'       => $result->getPublicId(),
+            'path'       => $result['public_id'],
             'filename'   => $request->file('image')->getClientOriginalName(),
-            'url'        => $result->getSecurePath(),
+            'url'        => $result['secure_url'],
             'is_primary' => $isPrimary,
             'sort_order' => $product->images()->count(),
         ]);
@@ -48,11 +60,10 @@ class ProductImageController extends Controller
             return response()->json(['message' => 'Imagen no pertenece a este producto.'], 403);
         }
 
-        cloudinary()->destroy($image->path);
+        $this->cloudinary()->uploadApi()->destroy($image->path);
 
         $wasPrimary = $image->is_primary;
         $image->delete();
-
 
         if ($wasPrimary) {
             $next = $product->images()->first();
@@ -67,7 +78,6 @@ class ProductImageController extends Controller
         if ($image->product_id !== $product->id) {
             return response()->json(['message' => 'Imagen no pertenece a este producto.'], 403);
         }
-
 
         $product->images()->update(['is_primary' => false]);
         $image->update(['is_primary' => true]);
