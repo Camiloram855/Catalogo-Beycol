@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Storage;
+
 
 class ProductImage extends Model
 {
@@ -14,6 +14,7 @@ class ProductImage extends Model
         'product_id',
         'path',
         'filename',
+        'url',
         'is_primary',
         'sort_order',
     ];
@@ -32,6 +33,13 @@ class ProductImage extends Model
 
     public function getUrlAttribute(): string
     {
-        return Storage::disk('public')->url($this->path);
+        // Si tiene URL de Cloudinary guardada, úsala
+        if (!empty($this->attributes['url'])) {
+            return $this->attributes['url'];
+        }
+
+        // Fallback para imágenes viejas
+        return cloudinary()->image($this->path)->toUrl();
     }
 }
+

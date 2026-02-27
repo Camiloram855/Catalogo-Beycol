@@ -6,8 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\ProductImage;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
+
 
 class ProductImageController extends Controller
 {
@@ -17,28 +16,29 @@ class ProductImageController extends Controller
             'image' => 'required|image|max:5120|mimes:jpg,jpeg,png,webp,gif',
         ]);
 
-        $file = $request->file('image');
-        $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
-        $path = $file->storeAs("products/{$product->id}", $filename, 'public');
+        $result = cloudinary()->uploadFile($request->file('image')->getRealPath(), [
+            'folder' => "products/{$product->id}",
+        ]);
 
         $isPrimary = $product->images()->count() === 0;
 
         $image = ProductImage::create([
             'product_id' => $product->id,
-            'path' => $path,
-            'filename' => $file->getClientOriginalName(),
+            'path'       => $result->getPublicId(),
+            'filename'   => $request->file('image')->getClientOriginalName(),
+            'url'        => $result->getSecurePath(),
             'is_primary' => $isPrimary,
             'sort_order' => $product->images()->count(),
         ]);
 
-                return response()->json([
+        return response()->json([
             'data' => [
-                'id' => $image->id,
-                'url' => asset('storage/' . $image->path), // 👈 ESTA ES LA CLAVE
-                'filename' => $image->filename,
+                'id'         => $image->id,
+                'url'        => $image->url,
+                'filename'   => $image->filename,
                 'is_primary' => $image->is_primary,
             ],
-                'message' => 'Imagen subida correctamente.'
+            'message' => 'Imagen subida correctamente.'
         ], 201);
     }
 
@@ -48,11 +48,12 @@ class ProductImageController extends Controller
             return response()->json(['message' => 'Imagen no pertenece a este producto.'], 403);
         }
 
-        Storage::disk('public')->delete($image->path);
+        cloudinary()->destroy($image->path);
+
         $wasPrimary = $image->is_primary;
         $image->delete();
 
-        // If deleted was primary, assign next image as primary
+
         if ($wasPrimary) {
             $next = $product->images()->first();
             $next?->update(['is_primary' => true]);
@@ -67,7 +68,7 @@ class ProductImageController extends Controller
             return response()->json(['message' => 'Imagen no pertenece a este producto.'], 403);
         }
 
-        // Remove primary from all other images
+
         $product->images()->update(['is_primary' => false]);
         $image->update(['is_primary' => true]);
 
