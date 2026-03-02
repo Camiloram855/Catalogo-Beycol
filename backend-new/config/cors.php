@@ -3,10 +3,10 @@
 return [
     'paths' => ['api/*'],
     'allowed_methods' => ['*'],
-    'allowed_origins' => [
-        'https://beycol-catalogo.vercel.app', // cambia por tu URL de Vercel
+    'allowed_origins' => explode(',', env('FRONTEND_URL', 'https://beycol-catalogo.vercel.app')),
+    'allowed_origins_patterns' => [
+        '#^https://beycol-catalogo.*\.vercel\.app$#',
     ],
-    'allowed_origins_patterns' => [],
     'allowed_headers' => ['*'],
     'exposed_headers' => [],
     'max_age' => 0,
