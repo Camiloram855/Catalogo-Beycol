@@ -15,7 +15,7 @@ export function usePublicProducts(params) {
 export function useProducts(params) {
   return useQuery({
     queryKey: ['products', params],
-    queryFn: () => productsService.getAll(params),
+    queryFn: () => publicProductsService.getAll(params),
   })
 }
 
