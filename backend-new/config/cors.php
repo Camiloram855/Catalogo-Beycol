@@ -1,14 +1,12 @@
 <?php
 
 return [
-    'paths' => ['api/*'],
-    'allowed_methods' => ['*'],
-    'allowed_origins' => explode(',', env('FRONTEND_URL', 'https://beycol-catalogo.vercel.app')),
-    'allowed_origins_patterns' => [
-        '#^https://beycol-catalogo.*\.vercel\.app$#',
-    ],
-    'allowed_headers' => ['*'],
-    'exposed_headers' => [],
-    'max_age' => 0,
-    'supports_credentials' => false,
+'paths' => ['api/*'],
+'allowed_methods' => ['*'],
+'allowed_origins' => explode(',', env('FRONTEND_URL')),
+'allowed_origins_patterns' => [
+    '#^https://.*\.vercel\.app$#',
+],
+'allowed_headers' => ['*'],
+'supports_credentials' => false,
 ];
