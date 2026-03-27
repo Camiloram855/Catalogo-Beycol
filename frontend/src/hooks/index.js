@@ -22,7 +22,7 @@ export function useProducts(params) {
 export function useProduct(id) {
   return useQuery({
     queryKey: ['products', id],
-    queryFn: () => productsService.getOne(id),
+    queryFn: () => publicProductsService.getOne(id),
     enabled: !!id,
   })
 }
