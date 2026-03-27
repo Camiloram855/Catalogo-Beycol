@@ -1,16 +1,16 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   productsService,
+  publicProductsService,
   categoriesService,
   siteTextsService,
   imagesService
 } from '../services/catalog'
-
 // Products hooks
 export const useProducts = (params) =>
   useQuery({
     queryKey: ['products', params],
-    queryFn: () => productsService.getAll(params).then(r => r.data),
+    queryFn: () => publicProductsService.getAll(params).then(r => r.data),
   })
 
 export const useProduct = (slug) =>
