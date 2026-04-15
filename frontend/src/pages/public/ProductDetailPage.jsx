@@ -1,33 +1,52 @@
 import { useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react'
+import { ArrowLeft, ChevronLeft, ChevronRight, ShoppingCart } from 'lucide-react'
+import toast from 'react-hot-toast'
 import { useProduct } from '../../hooks'
 import { LoadingPage, Badge } from '../../components/ui'
+import { useCart } from '../../context/CartContext'
 
 export default function ProductDetailPage() {
   const { id } = useParams()
   const { data, isLoading, error } = useProduct(id)
   const [activeImage, setActiveImage] = useState(0)
+  const [quantity, setQuantity] = useState(1)
+  const { addItem } = useCart()
 
   if (isLoading) return <LoadingPage />
-  if (error || !data?.data) return (
-    <div className="max-w-7xl mx-auto px-4 py-20 text-center">
-      <p className="text-gray-400">Producto no encontrado.</p>
-      <Link to="/catalogo" className="btn-secondary mt-4">Volver al catálogo</Link>
-    </div>
-  )
+  if (error || !data?.data) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 py-20 text-center">
+        <p className="text-gray-400">Producto no encontrado.</p>
+        <Link to="/catalogo" className="btn-secondary mt-4">Volver al catalogo</Link>
+      </div>
+    )
+  }
 
   const product = data.data
   const images = product.images || []
 
+  const handleAddToCart = () => {
+    addItem(
+      {
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        image: images[0]?.url || null,
+      },
+      quantity,
+    )
+
+    toast.success('Producto agregado al carrito')
+  }
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
       <Link to="/catalogo" className="inline-flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-700 transition-colors mb-8">
-        <ArrowLeft size={16} /> Volver al catálogo
+        <ArrowLeft size={16} /> Volver al catalogo
       </Link>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-        {/* Images */}
         <div>
           <div className="aspect-square bg-gray-50 rounded-2xl overflow-hidden mb-4 relative group">
             {images[activeImage] ? (
@@ -37,7 +56,7 @@ export default function ProductDetailPage() {
                 className="w-full h-full object-cover"
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center text-gray-200 text-7xl">🛍</div>
+              <div className="w-full h-full flex items-center justify-center text-gray-200 text-7xl">IMG</div>
             )}
             {images.length > 1 && (
               <>
@@ -71,7 +90,6 @@ export default function ProductDetailPage() {
           )}
         </div>
 
-        {/* Info */}
         <div className="flex flex-col">
           {product.category && (
             <Badge variant="brand" className="mb-3 self-start">{product.category.name}</Badge>
@@ -79,7 +97,7 @@ export default function ProductDetailPage() {
           <h1 className="font-display text-4xl text-gray-900 mb-4">{product.name}</h1>
           {product.price != null && (
             <div className="text-3xl font-semibold text-gray-900 mb-6">
-              ${Number(product.price).toLocaleString('es')}
+              ${Number(product.price).toLocaleString('es-CO')}
             </div>
           )}
           {product.description && (
@@ -90,6 +108,27 @@ export default function ProductDetailPage() {
               {product.stock > 0 ? `${product.stock} en stock` : 'Sin stock'}
             </p>
           )}
+
+          <div className="flex flex-col sm:flex-row gap-3 mt-2 mb-6">
+            <input
+              type="number"
+              min="1"
+              value={quantity}
+              onChange={(event) => setQuantity(Math.max(1, Number(event.target.value) || 1))}
+              className="input-field w-full sm:w-28"
+            />
+            <button
+              type="button"
+              onClick={handleAddToCart}
+              className="btn-primary"
+              disabled={product.stock === 0}
+            >
+              <ShoppingCart size={16} />
+              Agregar al carrito
+            </button>
+            <Link to="/carrito" className="btn-secondary">Ver carrito</Link>
+          </div>
+
           {product.sku && (
             <p className="text-xs text-gray-400 font-mono">SKU: {product.sku}</p>
           )}

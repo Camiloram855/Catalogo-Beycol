@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\PedidoController;
 use App\Http\Controllers\Api\SiteTextController;
 use App\Http\Controllers\Api\ProductImageController;
 
@@ -22,6 +23,7 @@ Route::prefix('v1')->group(function () {
 
     // Site texts (public)
     Route::get('/site-texts', [SiteTextController::class, 'index']);
+    Route::post('/pedidos', [PedidoController::class, 'store']);
 
     /*
     |--------------------------------------------------------------------------

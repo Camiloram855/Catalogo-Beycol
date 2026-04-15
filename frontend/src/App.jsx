@@ -6,6 +6,8 @@ import PublicLayout from './components/public/Layout'
 import HomePage from './pages/public/HomePage'
 import CatalogPage from './pages/public/CatalogPage'
 import ProductDetailPage from './pages/public/ProductDetailPage'
+import CartPage from './pages/public/Cart'
+import CheckoutPage from './pages/public/Checkout'
 
 // Admin
 import AdminLayout from './components/admin/AdminLayout'
@@ -25,6 +27,8 @@ export default function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/catalogo" element={<CatalogPage />} />
           <Route path="/producto/:id" element={<ProductDetailPage />} />
+          <Route path="/carrito" element={<CartPage />} />
+          <Route path="/checkout" element={<CheckoutPage />} />
         </Route>
 
         {/* Admin - Login (no auth required) */}
