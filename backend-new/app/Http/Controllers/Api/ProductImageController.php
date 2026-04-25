@@ -7,9 +7,17 @@ use App\Models\Product;
 use App\Models\ProductImage;
 use Illuminate\Http\Request;
 use Cloudinary\Cloudinary;
+use Illuminate\Support\Facades\Storage;
 
 class ProductImageController extends Controller
 {
+    private function hasCloudinaryConfig(): bool
+    {
+        return filled(env('CLOUDINARY_CLOUD_NAME'))
+            && filled(env('CLOUDINARY_API_KEY'))
+            && filled(env('CLOUDINARY_API_SECRET'));
+    }
+
     private function cloudinary(): Cloudinary
     {
         return new Cloudinary([
@@ -27,18 +35,26 @@ class ProductImageController extends Controller
             'image' => 'required|image|max:5120|mimes:jpg,jpeg,png,webp,gif',
         ]);
 
-        $result = $this->cloudinary()->uploadApi()->upload(
-            $request->file('image')->getRealPath(),
-            ['folder' => "products/{$product->id}"]
-        );
+        if ($this->hasCloudinaryConfig()) {
+            $result = $this->cloudinary()->uploadApi()->upload(
+                $request->file('image')->getRealPath(),
+                ['folder' => "products/{$product->id}"]
+            );
+
+            $path = $result['public_id'];
+            $url = $result['secure_url'];
+        } else {
+            $path = $request->file('image')->store("products/{$product->id}", 'public');
+            $url = '/storage/' . ltrim($path, '/');
+        }
 
         $isPrimary = $product->images()->count() === 0;
 
         $image = ProductImage::create([
             'product_id' => $product->id,
-            'path'       => $result['public_id'],
+            'path'       => $path,
             'filename'   => $request->file('image')->getClientOriginalName(),
-            'url'        => $result['secure_url'],
+            'url'        => $url,
             'is_primary' => $isPrimary,
             'sort_order' => $product->images()->count(),
         ]);
@@ -60,7 +76,11 @@ class ProductImageController extends Controller
             return response()->json(['message' => 'Imagen no pertenece a este producto.'], 403);
         }
 
-        $this->cloudinary()->uploadApi()->destroy($image->path);
+        if ($this->hasCloudinaryConfig() && str_contains((string) $image->url, 'res.cloudinary.com')) {
+            $this->cloudinary()->uploadApi()->destroy($image->path);
+        } else {
+            Storage::disk('public')->delete($image->path);
+        }
 
         $wasPrimary = $image->is_primary;
         $image->delete();

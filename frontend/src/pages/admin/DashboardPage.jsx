@@ -2,6 +2,7 @@ import { useProducts, useCategories } from '../../hooks'
 import { Package, Tag, TrendingUp, Star } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { Spinner } from '../../components/ui'
+import { resolveMediaUrl } from '../../utils/media'
 
 function StatCard({ icon: Icon, label, value, color, to }) {
   return (
@@ -70,7 +71,7 @@ export default function DashboardPage() {
             <div key={product.id} className="px-6 py-3 flex items-center gap-4">
               <div className="w-10 h-10 rounded-lg bg-gray-50 overflow-hidden shrink-0">
                 {product.images?.[0] ? (
-                  <img src={product.images[0].url} alt="" className="w-full h-full object-cover" />
+                  <img src={resolveMediaUrl(product.images[0].url)} alt="" className="w-full h-full object-cover" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-gray-200 text-lg">🛍</div>
                 )}

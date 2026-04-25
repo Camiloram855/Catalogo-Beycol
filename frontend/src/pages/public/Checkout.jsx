@@ -4,6 +4,7 @@ import toast from 'react-hot-toast'
 import { useCart } from '../../context/CartContext'
 import { ordersService } from '../../services/orders'
 import { buildWhatsAppMessage, buildWhatsAppUrl, formatCurrency } from '../../utils/checkout'
+import { resolveMediaUrl } from '../../utils/media'
 
 const initialForm = {
   nombre: '',
@@ -175,9 +176,24 @@ export default function CheckoutPage() {
           <h2 className="font-medium text-gray-900 mb-4">Resumen</h2>
           <div className="space-y-3 mb-5">
             {items.map((item) => (
-              <div key={item.id} className="flex justify-between gap-2 text-sm">
-                <p className="text-gray-600">{item.nombre} x{item.cantidad}</p>
-                <p className="text-gray-900">{formatCurrency(item.precio * item.cantidad)}</p>
+              <div key={item.id} className="flex justify-between gap-3 text-sm">
+                <div className="flex items-center gap-2 min-w-0">
+                  <div className="w-12 h-12 rounded-lg bg-gray-50 overflow-hidden shrink-0">
+                    {item.imagen ? (
+                      <img
+                        src={resolveMediaUrl(item.imagen)}
+                        alt={item.nombre}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-gray-300 text-[10px]">
+                        IMG
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-gray-600 truncate">{item.nombre} x{item.cantidad}</p>
+                </div>
+                <p className="text-gray-900 shrink-0">{formatCurrency(item.precio * item.cantidad)}</p>
               </div>
             ))}
           </div>

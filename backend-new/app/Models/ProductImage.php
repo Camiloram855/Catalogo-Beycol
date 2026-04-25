@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-
+use Illuminate\Support\Facades\Storage;
 
 class ProductImage extends Model
 {
@@ -33,13 +33,29 @@ class ProductImage extends Model
 
     public function getUrlAttribute(): string
     {
-        // Si tiene URL de Cloudinary guardada, úsala
-        if (!empty($this->attributes['url'])) {
-            return $this->attributes['url'];
+        $savedUrl = $this->attributes['url'] ?? null;
+
+        if (!empty($savedUrl)) {
+            if (str_starts_with($savedUrl, '/')) {
+                return $savedUrl;
+            }
+
+            if (preg_match('#^https?://localhost(?::\d+)?/storage/#i', $savedUrl)) {
+                $path = parse_url($savedUrl, PHP_URL_PATH) ?: '';
+                return $path ?: $savedUrl;
+            }
+
+            return $savedUrl;
         }
 
-        // Fallback para imágenes viejas
-        return cloudinary()->image($this->path)->toUrl();
+        if (str_contains((string) $this->path, '/')) {
+            return '/storage/' . ltrim((string) $this->path, '/');
+        }
+
+        if (filled(env('CLOUDINARY_CLOUD_NAME')) && filled(env('CLOUDINARY_API_KEY')) && filled(env('CLOUDINARY_API_SECRET'))) {
+            return cloudinary()->image($this->path)->toUrl();
+        }
+
+        return '';
     }
 }
-

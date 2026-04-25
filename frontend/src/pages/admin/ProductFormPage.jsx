@@ -6,6 +6,7 @@ import { useCategories } from '../../hooks/useCatalog'
 import { Spinner } from '../../components/shared/UI'
 import api from '../../services/api'
 import toast from 'react-hot-toast'
+import { resolveMediaUrl } from '../../utils/media'
 
 export default function ProductFormPage() {
   const { id } = useParams()
@@ -102,8 +103,6 @@ export default function ProductFormPage() {
     }
   }
 
-  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000'
-
   if (fetching) return (
     <div className="min-h-[400px] flex items-center justify-center">
       <Spinner size="lg" />
@@ -173,7 +172,7 @@ export default function ProductFormPage() {
                       onClick={() => setPrimaryIdx(i)}
                       className={`relative w-20 h-20 rounded-2xl overflow-hidden cursor-pointer border-2 transition-all ${i === primaryIdx ? 'border-brand-400 ring-2 ring-brand-200' : 'border-transparent'}`}
                     >
-                      <img src={`${apiUrl}/storage/${img.path}`} alt="" className="w-full h-full object-cover" />
+                      <img src={resolveMediaUrl(img.url)} alt="" className="w-full h-full object-cover" />
                       {i === primaryIdx && (
                         <div className="absolute top-1 left-1 w-5 h-5 bg-brand-500 rounded-full flex items-center justify-center">
                           <Star className="w-3 h-3 text-white fill-white" />

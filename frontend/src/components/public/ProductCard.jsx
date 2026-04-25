@@ -3,6 +3,7 @@ import toast from 'react-hot-toast'
 import { ShoppingCart } from 'lucide-react'
 import { Badge } from '../ui'
 import { useCart } from '../../context/CartContext'
+import { resolveMediaUrl } from '../../utils/media'
 import clsx from 'clsx'
 
 const PASTEL_COLORS = [
@@ -43,7 +44,7 @@ export default function ProductCard({ product, index = 0 }) {
           <div className={clsx('aspect-square overflow-hidden', primaryImage ? 'bg-gray-50' : bgColor)}>
             {primaryImage ? (
               <img
-                src={primaryImage.url}
+                src={resolveMediaUrl(primaryImage.url)}
                 alt={product.name}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
               />

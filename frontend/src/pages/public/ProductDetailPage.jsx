@@ -5,6 +5,7 @@ import toast from 'react-hot-toast'
 import { useProduct } from '../../hooks'
 import { LoadingPage, Badge } from '../../components/ui'
 import { useCart } from '../../context/CartContext'
+import { resolveMediaUrl } from '../../utils/media'
 
 export default function ProductDetailPage() {
   const { id } = useParams()
@@ -51,7 +52,7 @@ export default function ProductDetailPage() {
           <div className="aspect-square bg-gray-50 rounded-2xl overflow-hidden mb-4 relative group">
             {images[activeImage] ? (
               <img
-                src={images[activeImage].url}
+                src={resolveMediaUrl(images[activeImage].url)}
                 alt={product.name}
                 className="w-full h-full object-cover"
               />
@@ -83,7 +84,7 @@ export default function ProductDetailPage() {
                   onClick={() => setActiveImage(i)}
                   className={`w-16 h-16 rounded-xl overflow-hidden shrink-0 border-2 transition-all ${i === activeImage ? 'border-brand-400' : 'border-transparent opacity-60 hover:opacity-100'}`}
                 >
-                  <img src={img.url} alt="" className="w-full h-full object-cover" />
+                  <img src={resolveMediaUrl(img.url)} alt="" className="w-full h-full object-cover" />
                 </button>
               ))}
             </div>

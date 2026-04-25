@@ -2,6 +2,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { Trash2 } from 'lucide-react'
 import { useCart } from '../../context/CartContext'
 import { formatCurrency } from '../../utils/checkout'
+import { resolveMediaUrl } from '../../utils/media'
 
 export default function CartPage() {
   const navigate = useNavigate()
@@ -21,6 +22,20 @@ export default function CartPage() {
           <div className="lg:col-span-2 card p-5 space-y-4">
             {items.map((item) => (
               <div key={item.id} className="border border-gray-100 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center gap-3">
+                <div className="w-16 h-16 rounded-lg bg-gray-50 overflow-hidden shrink-0">
+                  {item.imagen ? (
+                    <img
+                      src={resolveMediaUrl(item.imagen)}
+                      alt={item.nombre}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-gray-300 text-xs">
+                      IMG
+                    </div>
+                  )}
+                </div>
+
                 <div className="flex-1">
                   <h3 className="text-gray-900 font-medium">{item.nombre}</h3>
                   <p className="text-sm text-gray-500">{formatCurrency(item.precio)} c/u</p>

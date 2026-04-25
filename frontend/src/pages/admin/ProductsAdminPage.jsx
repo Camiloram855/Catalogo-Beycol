@@ -12,6 +12,7 @@ import { productsService } from '../../services'
 import toast from 'react-hot-toast'
 import { useQueryClient } from '@tanstack/react-query'
 import { useDropzone } from 'react-dropzone'
+import { resolveMediaUrl } from '../../utils/media'
 
 // ──── Product Form ─────────────────────────────────────────────────────────────
 function ProductForm({ product, onSuccess, categories }) {
@@ -93,22 +94,36 @@ function ProductForm({ product, onSuccess, categories }) {
 // ──── Image Manager ────────────────────────────────────────────────────────────
 function ImageManager({ product }) {
   const [uploading, setUploading] = useState(false)
+  const [images, setImages] = useState(product.images || [])
   const qc = useQueryClient()
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     accept: { 'image/*': [] },
     onDrop: async (files) => {
       setUploading(true)
+      let uploadedCount = 0
       for (const file of files) {
         const fd = new FormData()
         fd.append('image', file)
         try {
-          await productsService.uploadImage(product.id, fd)
-        } catch (_) {
-          toast.error('Error subiendo imagen')
+          const response = await productsService.uploadImage(product.id, fd)
+          const uploaded = response?.data
+          if (uploaded) {
+            setImages((prev) => [...prev, uploaded])
+          }
+          uploadedCount += 1
+        } catch (error) {
+          toast.error(error.response?.data?.message || 'Error subiendo imagen')
         }
       }
-      qc.invalidateQueries({ queryKey: ['products', product.id] })
+      if (uploadedCount > 0) {
+        toast.success(
+          uploadedCount === 1
+            ? 'Imagen subida correctamente'
+            : `${uploadedCount} imagenes subidas correctamente`,
+        )
+      }
+      qc.invalidateQueries({ queryKey: ['products'] })
       setUploading(false)
     },
   })
@@ -116,7 +131,8 @@ function ImageManager({ product }) {
   const handleDelete = async (imageId) => {
     try {
       await productsService.deleteImage(product.id, imageId)
-      qc.invalidateQueries({ queryKey: ['products', product.id] })
+      setImages((prev) => prev.filter((img) => img.id !== imageId))
+      qc.invalidateQueries({ queryKey: ['products'] })
       toast.success('Imagen eliminada')
     } catch (_) {
       toast.error('Error al eliminar imagen')
@@ -126,7 +142,10 @@ function ImageManager({ product }) {
   const handleSetPrimary = async (imageId) => {
     try {
       await productsService.setPrimaryImage(product.id, imageId)
-      qc.invalidateQueries({ queryKey: ['products', product.id] })
+      setImages((prev) =>
+        prev.map((img) => ({ ...img, is_primary: img.id === imageId })),
+      )
+      qc.invalidateQueries({ queryKey: ['products'] })
       toast.success('Imagen principal actualizada')
     } catch (_) {}
   }
@@ -153,9 +172,9 @@ function ImageManager({ product }) {
 
       {/* Image grid */}
       <div className="grid grid-cols-3 gap-3">
-        {product.images?.map((img) => (
+        {images?.map((img) => (
           <div key={img.id} className="relative group aspect-square">
-            <img src={img.url} alt="" className="w-full h-full object-cover rounded-xl" />
+            <img src={resolveMediaUrl(img.url)} alt="" className="w-full h-full object-cover rounded-xl" />
             <div className="absolute inset-0 bg-black/40 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
               {!img.is_primary && (
                 <button
@@ -244,7 +263,7 @@ export default function ProductsAdminPage() {
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-lg bg-gray-50 overflow-hidden shrink-0">
                         {product.images?.[0] ? (
-                          <img src={product.images[0].url} alt="" className="w-full h-full object-cover" />
+                          <img src={resolveMediaUrl(product.images[0].url)} alt="" className="w-full h-full object-cover" />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-gray-200">🛍</div>
                         )}
