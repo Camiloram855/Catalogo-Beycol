@@ -56,13 +56,13 @@ export default function ProductCard({ product, index = 0 }) {
           </div>
         </Link>
 
-        <div className="p-4 flex-1 flex flex-col">
+        <div className="p-3 sm:p-4 flex-1 flex flex-col">
           {product.category && (
             <Badge variant="brand" className="mb-2">{product.category.name}</Badge>
           )}
 
           <Link to={`/producto/${product.id}`}>
-            <h3 className="font-display text-gray-900 text-lg leading-snug mb-1 group-hover:text-brand-600 transition-colors">
+            <h3 className="font-display text-gray-900 text-base sm:text-lg leading-snug mb-1 group-hover:text-brand-600 transition-colors">
               {product.name}
             </h3>
           </Link>
@@ -74,7 +74,7 @@ export default function ProductCard({ product, index = 0 }) {
           <div className="mt-auto">
             <div className="flex items-center justify-between mb-3">
               {product.price != null && (
-                <span className="font-semibold text-gray-900 text-lg">
+                <span className="font-semibold text-gray-900 text-base sm:text-lg">
                   ${Number(product.price).toLocaleString('es-CO')}
                 </span>
               )}

@@ -31,6 +31,7 @@ export default function CheckoutPage() {
 
   const handleSubmit = async (event) => {
     event.preventDefault()
+    let whatsappWindow = null
 
     if (items.length === 0) {
       toast.error('El carrito esta vacio.')
@@ -45,6 +46,8 @@ export default function CheckoutPage() {
 
     try {
       setSending(true)
+      // Open a blank tab from the user gesture to avoid popup blockers in production browsers.
+      whatsappWindow = window.open('about:blank', '_blank', 'noopener,noreferrer')
 
       const payload = {
         cliente: form,
@@ -70,9 +73,18 @@ export default function CheckoutPage() {
 
       toast.success('Pedido creado. Te redirigimos a WhatsApp.')
       clearCart()
-      window.open(whatsappUrl, '_blank')
+
+      if (whatsappWindow) {
+        whatsappWindow.location.href = whatsappUrl
+      } else {
+        window.location.href = whatsappUrl
+      }
+
       navigate('/catalogo')
     } catch (error) {
+      if (whatsappWindow && !whatsappWindow.closed) {
+        whatsappWindow.close()
+      }
       const apiMessage = error.response?.data?.message || 'No se pudo crear el pedido.'
       toast.error(apiMessage)
     } finally {
