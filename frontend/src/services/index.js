@@ -1,7 +1,31 @@
 import api from './api'
 
+function normalizePaginated(payload) {
+  if (!payload || typeof payload !== 'object') return payload
+  if (payload.meta) return payload
+
+  const hasLaravelPaginationShape =
+    Array.isArray(payload.data) &&
+    payload.current_page != null &&
+    payload.last_page != null
+
+  if (!hasLaravelPaginationShape) return payload
+
+  return {
+    ...payload,
+    meta: {
+      current_page: payload.current_page,
+      last_page: payload.last_page,
+      per_page: payload.per_page,
+      total: payload.total,
+      from: payload.from,
+      to: payload.to,
+    },
+  }
+}
+
 export const productsService = {
-  getAll: (params = {}) => api.get('/admin/products', { params }).then((r) => r.data),
+  getAll: (params = {}) => api.get('/admin/products', { params }).then((r) => normalizePaginated(r.data)),
   getOne: (id) => api.get(`/admin/products/${id}`).then((r) => r.data),
   create: (data) => api.post('/products', data).then((r) => r.data),
   update: (id, data) => api.put(`/products/${id}`, data).then((r) => r.data),
@@ -19,7 +43,7 @@ export const productsService = {
 }
 
 export const publicProductsService = {
-  getAll: (params = {}) => api.get('/products', { params }).then((r) => r.data),
+  getAll: (params = {}) => api.get('/products', { params }).then((r) => normalizePaginated(r.data)),
   getOne: (id) => api.get(`/products/${id}`).then((r) => r.data),
 }
 
