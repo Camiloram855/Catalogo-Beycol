@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { Search, SlidersHorizontal, X } from 'lucide-react'
+import { Search, X } from 'lucide-react'
 import { usePublicProducts, useCategories } from '../../hooks'
 import ProductCard from '../../components/public/ProductCard'
-import { LoadingPage, Pagination, EmptyState } from '../../components/ui'
+import { LoadingPage, EmptyState } from '../../components/ui'
 import { Package } from 'lucide-react'
 import clsx from 'clsx'
 
@@ -11,13 +11,14 @@ export default function CatalogPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const [search, setSearch] = useState(searchParams.get('q') || '')
   const [page, setPage] = useState(1)
+  const [loadedProducts, setLoadedProducts] = useState([])
 
   const categorySlug = searchParams.get('categoria')
   const { data: categories } = useCategories()
 
   const selectedCategory = categories?.data?.find((c) => c.slug === categorySlug)
 
-  const { data, isLoading } = usePublicProducts({
+  const { data, isLoading, isFetching } = usePublicProducts({
     search: searchParams.get('q') || undefined,
     category_id: selectedCategory?.id || undefined,
     page,
@@ -26,7 +27,29 @@ export default function CatalogPage() {
 
   useEffect(() => {
     setPage(1)
+    setLoadedProducts([])
   }, [searchParams])
+
+  useEffect(() => {
+    if (!data?.data) return
+
+    setLoadedProducts((previous) => {
+      if (page === 1) return data.data
+
+      const merged = [...previous, ...data.data]
+      const unique = []
+      const ids = new Set()
+
+      for (const product of merged) {
+        if (!ids.has(product.id)) {
+          ids.add(product.id)
+          unique.push(product)
+        }
+      }
+
+      return unique
+    })
+  }, [data, page])
 
   const handleSearch = (e) => {
     e.preventDefault()
@@ -43,6 +66,9 @@ export default function CatalogPage() {
       return prev
     })
   }
+
+  const hasMoreProducts = (data?.meta?.current_page || 1) < (data?.meta?.last_page || 1)
+  const isLoadingMore = isFetching && page > 1
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
@@ -134,7 +160,7 @@ export default function CatalogPage() {
           {/* Grid */}
           {isLoading ? (
             <LoadingPage />
-          ) : data?.data?.length === 0 ? (
+          ) : loadedProducts.length === 0 ? (
             <EmptyState
               icon={Package}
               title="Sin resultados"
@@ -143,15 +169,25 @@ export default function CatalogPage() {
           ) : (
             <>
               <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-5">
-                {data?.data?.map((product, i) => (
+                {loadedProducts.map((product, i) => (
                   <ProductCard key={product.id} product={product} index={i} />
                 ))}
               </div>
-              <Pagination
-                currentPage={data?.meta?.current_page || 1}
-                lastPage={data?.meta?.last_page || 1}
-                onPageChange={setPage}
-              />
+
+              <div className="mt-8 flex flex-col items-center gap-3">
+                {hasMoreProducts ? (
+                  <button
+                    type="button"
+                    onClick={() => setPage((prev) => prev + 1)}
+                    disabled={isLoadingMore}
+                    className="btn-secondary"
+                  >
+                    {isLoadingMore ? 'Cargando...' : 'Cargar mas'}
+                  </button>
+                ) : (
+                  <p className="text-sm text-gray-400">No hay mas productos.</p>
+                )}
+              </div>
             </>
           )}
         </div>
