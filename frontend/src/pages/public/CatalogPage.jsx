@@ -61,8 +61,10 @@ export default function CatalogPage() {
   }
 
   const clearCategory = () => {
+    setSearch('')
     setSearchParams((prev) => {
       prev.delete('categoria')
+      prev.delete('q')
       return prev
     })
   }

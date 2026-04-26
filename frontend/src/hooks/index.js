@@ -18,6 +18,13 @@ export function useProducts(params) {
     queryFn: () => publicProductsService.getAll(params),
   })
 }
+
+export function useAdminProducts(params) {
+  return useQuery({
+    queryKey: ['admin-products', params],
+    queryFn: () => productsService.getAll(params),
+  })
+}
   
 export function useProduct(id) {
   return useQuery({
@@ -33,6 +40,8 @@ export function useCreateProduct() {
     mutationFn: productsService.create,
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['products'] })
+      qc.invalidateQueries({ queryKey: ['public-products'] })
+      qc.invalidateQueries({ queryKey: ['admin-products'] })
       toast.success('Producto creado exitosamente')
     },
     onError: (e) => toast.error(e.response?.data?.message || 'Error al crear producto'),
@@ -45,6 +54,8 @@ export function useUpdateProduct() {
     mutationFn: ({ id, data }) => productsService.update(id, data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['products'] })
+      qc.invalidateQueries({ queryKey: ['public-products'] })
+      qc.invalidateQueries({ queryKey: ['admin-products'] })
       toast.success('Producto actualizado')
     },
     onError: (e) => toast.error(e.response?.data?.message || 'Error al actualizar'),
@@ -57,6 +68,8 @@ export function useDeleteProduct() {
     mutationFn: productsService.delete,
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['products'] })
+      qc.invalidateQueries({ queryKey: ['public-products'] })
+      qc.invalidateQueries({ queryKey: ['admin-products'] })
       toast.success('Producto eliminado')
     },
     onError: (e) => toast.error(e.response?.data?.message || 'Error al eliminar'),

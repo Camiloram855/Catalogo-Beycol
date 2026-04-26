@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Plus, Pencil, Trash2, Search, Image, Package } from 'lucide-react'
 import {
-  useProducts, useCategories, useCreateProduct, useUpdateProduct,
+  useAdminProducts, useCategories, useCreateProduct, useUpdateProduct,
   useDeleteProduct,
 } from '../../hooks'
 import {
@@ -124,6 +124,8 @@ function ImageManager({ product }) {
         )
       }
       qc.invalidateQueries({ queryKey: ['products'] })
+      qc.invalidateQueries({ queryKey: ['public-products'] })
+      qc.invalidateQueries({ queryKey: ['admin-products'] })
       setUploading(false)
     },
   })
@@ -133,6 +135,8 @@ function ImageManager({ product }) {
       await productsService.deleteImage(product.id, imageId)
       setImages((prev) => prev.filter((img) => img.id !== imageId))
       qc.invalidateQueries({ queryKey: ['products'] })
+      qc.invalidateQueries({ queryKey: ['public-products'] })
+      qc.invalidateQueries({ queryKey: ['admin-products'] })
       toast.success('Imagen eliminada')
     } catch (_) {
       toast.error('Error al eliminar imagen')
@@ -146,6 +150,8 @@ function ImageManager({ product }) {
         prev.map((img) => ({ ...img, is_primary: img.id === imageId })),
       )
       qc.invalidateQueries({ queryKey: ['products'] })
+      qc.invalidateQueries({ queryKey: ['public-products'] })
+      qc.invalidateQueries({ queryKey: ['admin-products'] })
       toast.success('Imagen principal actualizada')
     } catch (_) {}
   }
@@ -210,7 +216,7 @@ export default function ProductsAdminPage() {
   const [deleteProduct, setDeleteProduct] = useState(null)
   const [imagesProduct, setImagesProduct] = useState(null)
 
-  const { data, isLoading } = useProducts({ page, search: search || undefined, per_page: 15 })
+  const { data, isLoading } = useAdminProducts({ page, search: search || undefined, per_page: 15 })
   const { data: categories } = useCategories()
   const deleteM = useDeleteProduct()
 

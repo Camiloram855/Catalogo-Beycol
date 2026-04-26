@@ -1,4 +1,4 @@
-import { useProducts, useCategories } from '../../hooks'
+import { useAdminProducts, useCategories } from '../../hooks'
 import { Package, Tag, TrendingUp, Star } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { Spinner } from '../../components/ui'
@@ -25,8 +25,8 @@ function StatCard({ icon: Icon, label, value, color, to }) {
 }
 
 export default function DashboardPage() {
-  const { data: allProducts } = useProducts({ per_page: 9999 })
-  const { data: featured } = useProducts({ featured: true, per_page: 9999 })
+  const { data: allProducts } = useAdminProducts({ per_page: 100 })
+  const { data: featured } = useAdminProducts({ featured: true, per_page: 100 })
   const { data: categories } = useCategories()
 
   return (
