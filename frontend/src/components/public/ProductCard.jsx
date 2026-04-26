@@ -60,12 +60,11 @@ export default function ProductCard({ product, index = 0 }) {
           {product.category && (
             <Badge variant="brand" className="mb-2">{product.category.name}</Badge>
           )}
-
-          <Link to={`/producto/${product.id}`}>
-            <h3 className="font-display text-gray-900 text-base sm:text-lg leading-snug mb-1 group-hover:text-brand-600 transition-colors">
-              {product.name}
-            </h3>
-          </Link>
+      <Link to={`/producto/${product.id}`}>
+        <h3 className="font-sans font-semibold tracking-tight text-gray-900 text-sm sm:text-base md:text-lg leading-tight mb-1 group-hover:text-brand-600 transition-all duration-300">
+          {product.name}
+        </h3>
+      </Link>
 
           {product.description && (
             <p className="text-gray-400 text-sm line-clamp-2 mb-3">{product.description}</p>
