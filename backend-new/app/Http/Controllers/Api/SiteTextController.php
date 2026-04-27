@@ -4,11 +4,30 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\SiteText;
+use Cloudinary\Cloudinary;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class SiteTextController extends Controller
 {
+    private function hasCloudinaryConfig(): bool
+    {
+        return filled(env('CLOUDINARY_CLOUD_NAME'))
+            && filled(env('CLOUDINARY_API_KEY'))
+            && filled(env('CLOUDINARY_API_SECRET'));
+    }
+
+    private function cloudinary(): Cloudinary
+    {
+        return new Cloudinary([
+            'cloud' => [
+                'cloud_name' => env('CLOUDINARY_CLOUD_NAME'),
+                'api_key' => env('CLOUDINARY_API_KEY'),
+                'api_secret' => env('CLOUDINARY_API_SECRET'),
+            ],
+        ]);
+    }
+
     public function index()
     {
         $texts = SiteText::orderBy('key')->get();
@@ -54,8 +73,19 @@ class SiteTextController extends Controller
             'image' => 'required|image|max:6144|mimes:jpg,jpeg,png,webp',
         ]);
 
+        if (!$this->hasCloudinaryConfig()) {
+            return response()->json([
+                'message' => 'Cloudinary no está configurado en el servidor.',
+            ], 500);
+        }
+
         $current = SiteText::where('key', 'hero_background_image')->first();
         $currentValue = (string) ($current?->value ?? '');
+        $currentPublicId = (string) (SiteText::where('key', 'hero_background_public_id')->value('value') ?? '');
+
+        if ($currentPublicId !== '') {
+            $this->cloudinary()->uploadApi()->destroy($currentPublicId);
+        }
 
         if (str_starts_with($currentValue, '/storage/')) {
             $oldPath = ltrim(substr($currentValue, strlen('/storage/')), '/');
@@ -64,12 +94,22 @@ class SiteTextController extends Controller
             }
         }
 
-        $path = $request->file('image')->store('site/hero', 'public');
-        $url = '/storage/' . ltrim($path, '/');
+        $result = $this->cloudinary()->uploadApi()->upload(
+            $request->file('image')->getRealPath(),
+            ['folder' => 'site/hero']
+        );
+
+        $url = $result['secure_url'];
+        $publicId = $result['public_id'];
 
         SiteText::updateOrCreate(
             ['key' => 'hero_background_image'],
             ['value' => $url]
+        );
+
+        SiteText::updateOrCreate(
+            ['key' => 'hero_background_public_id'],
+            ['value' => $publicId]
         );
 
         return response()->json([
