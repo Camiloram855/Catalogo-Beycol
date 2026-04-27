@@ -139,3 +139,15 @@ export function useBulkUpdateTexts() {
     onError: () => toast.error('Error al guardar textos'),
   })
 }
+
+export function useUploadHeroBackground() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: siteTextsService.uploadHeroBackground,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['site-texts'] })
+      toast.success('Portada actualizada')
+    },
+    onError: (e) => toast.error(e.response?.data?.message || 'Error al subir portada'),
+  })
+}

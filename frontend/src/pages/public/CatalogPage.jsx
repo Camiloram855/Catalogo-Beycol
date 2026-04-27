@@ -59,7 +59,7 @@ export default function CatalogPage() {
       return prev
     })
   }
-
+ 
   const clearCategory = () => {
     setSearch('')
     setSearchParams((prev) => {

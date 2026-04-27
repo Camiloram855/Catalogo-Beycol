@@ -31,6 +31,7 @@ class DatabaseSeeder extends Seeder
             ['key' => 'hero_badge', 'value' => 'Nuevos productos disponibles', 'description' => 'Badge del hero'],
             ['key' => 'hero_title', 'value' => 'Descubre nuestra colección', 'description' => 'Título principal del hero'],
             ['key' => 'hero_subtitle', 'value' => 'Productos cuidadosamente seleccionados para ofrecerte la mejor experiencia.', 'description' => 'Subtítulo del hero'],
+            ['key' => 'hero_background_image', 'value' => '', 'description' => 'URL de imagen de fondo del hero'],
             ['key' => 'featured_title', 'value' => 'Productos destacados', 'description' => 'Título de sección de destacados'],
             ['key' => 'footer_description', 'value' => 'Tu tienda de confianza para productos de calidad.', 'description' => 'Texto del footer'],
             ['key' => 'contact_email', 'value' => 'beilyyurani200@gmail.com', 'description' => 'Email de contacto'],
@@ -74,3 +75,4 @@ class DatabaseSeeder extends Seeder
         $this->command->info('📧 Admin: admin@catalogo.com | 🔑 Contraseña: password');
     }
 }
+

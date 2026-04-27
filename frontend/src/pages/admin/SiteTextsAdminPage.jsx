@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
-import { useSiteTexts, useBulkUpdateTexts } from '../../hooks'
+import { useSiteTexts, useBulkUpdateTexts, useUploadHeroBackground } from '../../hooks'
 import { LoadingPage, Spinner } from '../../components/ui'
 import { Save, FileText } from 'lucide-react'
+import { resolveMediaUrl } from '../../utils/media'
 
 const TEXT_GROUPS = [
   {
@@ -17,6 +18,7 @@ const TEXT_GROUPS = [
       { key: 'hero_badge', label: 'Badge del hero', type: 'text' },
       { key: 'hero_title', label: 'Título principal', type: 'text' },
       { key: 'hero_subtitle', label: 'Subtítulo', type: 'textarea' },
+      { key: 'hero_background_image', label: 'Imagen de fondo del hero (URL)', type: 'text' },
     ],
   },
   {
@@ -38,7 +40,9 @@ const TEXT_GROUPS = [
 export default function SiteTextsAdminPage() {
   const { data: texts, isLoading } = useSiteTexts()
   const bulkUpdate = useBulkUpdateTexts()
+  const uploadHeroBackground = useUploadHeroBackground()
   const [form, setForm] = useState({})
+  const [heroFile, setHeroFile] = useState(null)
 
   useEffect(() => {
     if (texts) {
@@ -50,6 +54,20 @@ export default function SiteTextsAdminPage() {
 
   const handleSave = async () => {
     await bulkUpdate.mutateAsync(form)
+  }
+
+  const handleUploadHeroBackground = async () => {
+    if (!heroFile) return
+
+    const formData = new FormData()
+    formData.append('image', heroFile)
+
+    const response = await uploadHeroBackground.mutateAsync(formData)
+    const uploadedUrl = response?.data?.url || ''
+    if (uploadedUrl) {
+      setForm((prev) => ({ ...prev, hero_background_image: uploadedUrl }))
+    }
+    setHeroFile(null)
   }
 
   if (isLoading) return <LoadingPage />
@@ -99,6 +117,48 @@ export default function SiteTextsAdminPage() {
             </div>
           </div>
         ))}
+
+        <div className="card p-6">
+          <div className="flex items-center gap-2.5 mb-5">
+            <FileText size={16} className="text-brand-400" />
+            <h2 className="font-semibold text-gray-900">Portada del Hero desde dispositivo</h2>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <label className="label">Subir imagen (JPG, PNG, WEBP - max 6MB)</label>
+              <input
+                type="file"
+                accept=".jpg,.jpeg,.png,.webp,image/*"
+                onChange={(e) => setHeroFile(e.target.files?.[0] || null)}
+                className="input-field"
+              />
+            </div>
+
+            <button
+              type="button"
+              className="btn-secondary"
+              onClick={handleUploadHeroBackground}
+              disabled={!heroFile || uploadHeroBackground.isPending}
+            >
+              {uploadHeroBackground.isPending ? <Spinner size={15} /> : null}
+              Subir portada
+            </button>
+
+            {form.hero_background_image ? (
+              <div>
+                <p className="text-xs text-gray-400 mb-2">Vista previa actual</p>
+                <div className="w-full max-w-xl aspect-[16/7] rounded-xl overflow-hidden border border-gray-100 bg-gray-50">
+                  <img
+                    src={resolveMediaUrl(form.hero_background_image)}
+                    alt="Portada hero"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              </div>
+            ) : null}
+          </div>
+        </div>
       </div>
 
       <div className="flex justify-end mt-6">
@@ -110,3 +170,4 @@ export default function SiteTextsAdminPage() {
     </div>
   )
 }
+

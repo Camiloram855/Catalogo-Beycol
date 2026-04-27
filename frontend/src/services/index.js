@@ -58,6 +58,10 @@ export const siteTextsService = {
   getAll: () => api.get('/site-texts').then((r) => r.data),
   update: (key, value) => api.patch(`/site-texts/${key}`, { value }).then((r) => r.data),
   bulkUpdate: (data) => api.put('/site-texts', { texts: data }).then((r) => r.data),
+  uploadHeroBackground: (formData) =>
+    api.post('/site-texts/hero-background', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    }).then((r) => r.data),
 }
 
 export const authService = {
