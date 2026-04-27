@@ -18,7 +18,6 @@ const TEXT_GROUPS = [
       { key: 'hero_badge', label: 'Badge del hero', type: 'text' },
       { key: 'hero_title', label: 'Título principal', type: 'text' },
       { key: 'hero_subtitle', label: 'Subtítulo', type: 'textarea' },
-      { key: 'hero_background_image', label: 'Imagen de fondo del hero (URL)', type: 'text' },
     ],
   },
   {

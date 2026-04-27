@@ -16,16 +16,20 @@ export default function HomePage() {
   return (
     <div>
       {/* Hero */}
-    <section
-      className="relative overflow-hidden"
-      style={heroBackgroundImage ? {
-        backgroundImage: `url(${resolveMediaUrl(heroBackgroundImage)})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-      } : undefined}
-    >
-
+      <section
+        className="relative overflow-hidden bg-gradient-to-br from-brand-50 via-white to-pastel-lavender"
+        style={heroBackgroundImage ? {
+          backgroundImage: `linear-gradient(90deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.72) 45%, rgba(255,255,255,0.45) 100%), url("${resolveMediaUrl(heroBackgroundImage)}")`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+        } : undefined}
+      >
+        <div className="absolute inset-0 opacity-30"
+          style={{
+            backgroundImage: 'radial-gradient(circle at 70% 50%, #e9a8fd44 0%, transparent 60%), radial-gradient(circle at 20% 80%, #ccf0ff44 0%, transparent 50%)',
+          }}
+        />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-24 md:py-36 flex flex-col items-start">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-brand-100 text-brand-700 rounded-full text-xs font-medium mb-6 animate-fade-in">
             <Sparkles size={13} />
