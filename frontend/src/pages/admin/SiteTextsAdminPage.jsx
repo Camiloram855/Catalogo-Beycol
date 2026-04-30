@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useSiteTexts, useBulkUpdateTexts, useUploadHeroBackground } from '../../hooks'
+import { useSiteTexts, useBulkUpdateTexts, useUploadHeroBackground, useUploadPromoCard } from '../../hooks'
 import { LoadingPage, Spinner } from '../../components/ui'
 import { Save, FileText } from 'lucide-react'
 import { resolveMediaUrl } from '../../utils/media'
@@ -40,8 +40,10 @@ export default function SiteTextsAdminPage() {
   const { data: texts, isLoading } = useSiteTexts()
   const bulkUpdate = useBulkUpdateTexts()
   const uploadHeroBackground = useUploadHeroBackground()
+  const uploadPromoCard = useUploadPromoCard()
   const [form, setForm] = useState({})
   const [heroFile, setHeroFile] = useState(null)
+  const [promoFile, setPromoFile] = useState(null)
 
   useEffect(() => {
     if (texts) {
@@ -67,6 +69,24 @@ export default function SiteTextsAdminPage() {
       setForm((prev) => ({ ...prev, hero_background_image: uploadedUrl }))
     }
     setHeroFile(null)
+  }
+
+  const handleUploadPromoCard = async () => {
+    if (!promoFile) return
+
+    const formData = new FormData()
+    formData.append('image', promoFile)
+
+    const response = await uploadPromoCard.mutateAsync(formData)
+    const uploadedUrl = response?.data?.url || ''
+    if (uploadedUrl) {
+      setForm((prev) => ({
+        ...prev,
+        promo_card_image: uploadedUrl,
+        promo_card_enabled: '1',
+      }))
+    }
+    setPromoFile(null)
   }
 
   if (isLoading) return <LoadingPage />
@@ -151,6 +171,61 @@ export default function SiteTextsAdminPage() {
                   <img
                     src={resolveMediaUrl(form.hero_background_image)}
                     alt="Portada hero"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              </div>
+            ) : null}
+          </div>
+        </div>
+
+        <div className="card p-6">
+          <div className="flex items-center gap-2.5 mb-5">
+            <FileText size={16} className="text-brand-400" />
+            <h2 className="font-semibold text-gray-900">Tarjeta promocional al ingresar</h2>
+          </div>
+
+          <div className="space-y-4">
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={(form.promo_card_enabled || '0') === '1'}
+                onChange={(e) => setForm((prev) => ({
+                  ...prev,
+                  promo_card_enabled: e.target.checked ? '1' : '0',
+                }))}
+                className="w-4 h-4 rounded text-brand-600"
+              />
+              <span className="text-sm text-gray-700">Mostrar tarjeta promocional al ingresar</span>
+            </label>
+
+            <div>
+              <label className="label">Subir imagen promocional (vertical recomendada)</label>
+              <input
+                type="file"
+                accept=".jpg,.jpeg,.png,.webp,image/*"
+                onChange={(e) => setPromoFile(e.target.files?.[0] || null)}
+                className="input-field"
+              />
+            </div>
+
+            <button
+              type="button"
+              className="btn-secondary"
+              onClick={handleUploadPromoCard}
+              disabled={!promoFile || uploadPromoCard.isPending}
+            >
+              {uploadPromoCard.isPending ? <Spinner size={15} /> : null}
+              Subir tarjeta promocional
+            </button>
+
+            {form.promo_card_image ? (
+              <div>
+                <p className="text-xs text-gray-400 mb-2">Vista previa actual</p>
+                <div className="w-full max-w-sm aspect-[9/16] rounded-xl overflow-hidden border border-gray-100 bg-gray-50">
+                  <img
+                    src={resolveMediaUrl(form.promo_card_image)}
+                    alt="Tarjeta promocional"
                     className="w-full h-full object-cover"
                   />
                 </div>

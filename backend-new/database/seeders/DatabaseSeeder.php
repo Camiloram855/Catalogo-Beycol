@@ -26,15 +26,18 @@ class DatabaseSeeder extends Seeder
 
         // Default site texts
         $texts = [
-            ['key' => 'brand_name', 'value' => 'BEYCOL', 'description' => 'Nombre de la marca'],
+            ['key' => 'brand_name', 'value' => 'BEYCOL ❤️', 'description' => 'Nombre de la marca'],
             ['key' => 'tagline', 'value' => 'Calidad que se nota', 'description' => 'Eslogan'],
-            ['key' => 'hero_badge', 'value' => 'Nuevos productos disponibles', 'description' => 'Badge del hero'],
-            ['key' => 'hero_title', 'value' => 'Descubre nuestra colección', 'description' => 'Título principal del hero'],
-            ['key' => 'hero_subtitle', 'value' => 'Productos cuidadosamente seleccionados para ofrecerte la mejor experiencia.', 'description' => 'Subtítulo del hero'],
+            ['key' => 'hero_badge', 'value' => 'ESPECIAL DÍA DE LA MADRE🌸', 'description' => 'Badge del hero'],
+            ['key' => 'hero_title', 'value' => 'CELEBRA A MAMÁ CON LO MEJOR', 'description' => 'Título principal del hero'],
+            ['key' => 'hero_subtitle', 'value' => 'Regalos únicos y variados para todos sus gustos. Sorpréndela con nuestra sección especial.', 'description' => 'Subtítulo del hero'],
             ['key' => 'hero_background_image', 'value' => '', 'description' => 'URL de imagen de fondo del hero'],
             ['key' => 'hero_background_public_id', 'value' => '', 'description' => 'Public ID de Cloudinary para la portada del hero'],
-            ['key' => 'featured_title', 'value' => 'Productos destacados', 'description' => 'Título de sección de destacados'],
-            ['key' => 'footer_description', 'value' => 'Tu tienda de confianza para productos de calidad.', 'description' => 'Texto del footer'],
+            ['key' => 'promo_card_image', 'value' => '', 'description' => 'Imagen promocional emergente'],
+            ['key' => 'promo_card_public_id', 'value' => '', 'description' => 'Public ID Cloudinary de la tarjeta promocional'],
+            ['key' => 'promo_card_enabled', 'value' => '0', 'description' => 'Activar tarjeta promocional (1/0)'],
+            ['key' => 'featured_title', 'value' => 'LO MAS VENDIDO 🔥', 'description' => 'Título de sección de destacados'],
+            ['key' => 'footer_description', 'value' => 'Creemos en los pequeños detalles que hacen grandes diferencias. Por eso elegimos productos que elevan tu rutina y transforman tu espacio.', 'description' => 'Texto del footer'],
             ['key' => 'contact_email', 'value' => 'beilyyurani200@gmail.com', 'description' => 'Email de contacto'],
             ['key' => 'contact_phone', 'value' => '3223397243', 'description' => 'Teléfono de contacto'],
         ];
@@ -76,5 +79,6 @@ class DatabaseSeeder extends Seeder
         $this->command->info('📧 Admin: admin@catalogo.com | 🔑 Contraseña: password');
     }
 }
+
 
 

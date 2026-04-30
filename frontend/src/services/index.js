@@ -62,6 +62,10 @@ export const siteTextsService = {
     api.post('/site-texts/hero-background', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     }).then((r) => r.data),
+  uploadPromoCard: (formData) =>
+    api.post('/site-texts/promo-card', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    }).then((r) => r.data),
 }
 
 export const authService = {

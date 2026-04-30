@@ -117,4 +117,50 @@ class SiteTextController extends Controller
             'message' => 'Portada del hero actualizada.',
         ]);
     }
+
+    public function uploadPromoCard(Request $request)
+    {
+        $request->validate([
+            'image' => 'required|image|max:8192|mimes:jpg,jpeg,png,webp',
+        ]);
+
+        if (!$this->hasCloudinaryConfig()) {
+            return response()->json([
+                'message' => 'Cloudinary no está configurado en el servidor.',
+            ], 500);
+        }
+
+        $currentPublicId = (string) (SiteText::where('key', 'promo_card_public_id')->value('value') ?? '');
+        if ($currentPublicId !== '') {
+            $this->cloudinary()->uploadApi()->destroy($currentPublicId);
+        }
+
+        $result = $this->cloudinary()->uploadApi()->upload(
+            $request->file('image')->getRealPath(),
+            ['folder' => 'site/promo-card']
+        );
+
+        $url = $result['secure_url'];
+        $publicId = $result['public_id'];
+
+        SiteText::updateOrCreate(
+            ['key' => 'promo_card_image'],
+            ['value' => $url]
+        );
+
+        SiteText::updateOrCreate(
+            ['key' => 'promo_card_public_id'],
+            ['value' => $publicId]
+        );
+
+        SiteText::updateOrCreate(
+            ['key' => 'promo_card_enabled'],
+            ['value' => '1']
+        );
+
+        return response()->json([
+            'data' => ['url' => $url],
+            'message' => 'Tarjeta promocional actualizada.',
+        ]);
+    }
 }

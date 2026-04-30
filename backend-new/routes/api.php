@@ -58,5 +58,6 @@ Route::prefix('v1')->group(function () {
         Route::put('/site-texts', [SiteTextController::class, 'bulkUpdate']);
         Route::patch('/site-texts/{key}', [SiteTextController::class, 'update']);
         Route::post('/site-texts/hero-background', [SiteTextController::class, 'uploadHeroBackground']);
+        Route::post('/site-texts/promo-card', [SiteTextController::class, 'uploadPromoCard']);
     });
 });

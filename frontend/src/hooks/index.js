@@ -151,3 +151,15 @@ export function useUploadHeroBackground() {
     onError: (e) => toast.error(e.response?.data?.message || 'Error al subir portada'),
   })
 }
+
+export function useUploadPromoCard() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: siteTextsService.uploadPromoCard,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['site-texts'] })
+      toast.success('Tarjeta promocional actualizada')
+    },
+    onError: (e) => toast.error(e.response?.data?.message || 'Error al subir tarjeta promocional'),
+  })
+}
