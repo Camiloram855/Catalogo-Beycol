@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { ArrowLeft, ChevronLeft, ChevronRight, ShoppingCart } from 'lucide-react'
 import toast from 'react-hot-toast'
@@ -6,6 +6,7 @@ import { useProduct } from '../../hooks'
 import { LoadingPage, Badge } from '../../components/ui'
 import { useCart } from '../../context/CartContext'
 import { resolveMediaUrl } from '../../utils/media'
+import { trackMetaEvent } from '../../utils/metaPixel'
 
 export default function ProductDetailPage() {
   const { id } = useParams()
@@ -27,6 +28,18 @@ export default function ProductDetailPage() {
   const product = data.data
   const images = product.images || []
 
+  useEffect(() => {
+    if (!product?.id) return
+
+    trackMetaEvent('ViewContent', {
+      content_ids: [String(product.id)],
+      content_name: product.name,
+      content_type: 'product',
+      currency: 'COP',
+      value: Number(product.price ?? 0),
+    })
+  }, [product?.id, product?.name, product?.price])
+
   const handleAddToCart = () => {
     addItem(
       {
@@ -37,6 +50,15 @@ export default function ProductDetailPage() {
       },
       quantity,
     )
+
+    trackMetaEvent('AddToCart', {
+      content_ids: [String(product.id)],
+      content_name: product.name,
+      content_type: 'product',
+      currency: 'COP',
+      value: Number(product.price ?? 0) * quantity,
+      num_items: quantity,
+    })
 
     toast.success('Producto agregado al carrito')
   }

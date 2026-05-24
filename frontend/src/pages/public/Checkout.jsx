@@ -1,10 +1,11 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { useCart } from '../../context/CartContext'
 import { ordersService } from '../../services/orders'
 import { buildWhatsAppMessage, buildWhatsAppUrl, formatCurrency } from '../../utils/checkout'
 import { resolveMediaUrl } from '../../utils/media'
+import { buildEventId, trackMetaEvent } from '../../utils/metaPixel'
 
 const initialForm = {
   nombre: '',
@@ -28,6 +29,22 @@ export default function CheckoutPage() {
   )
 
   const missingFields = requiredFields.filter((field) => !form[field]?.trim())
+
+  useEffect(() => {
+    if (items.length === 0) return
+
+    trackMetaEvent('InitiateCheckout', {
+      currency: 'COP',
+      value: Number(totalPrice || 0),
+      num_items: items.reduce((acc, item) => acc + Number(item.cantidad || 0), 0),
+      content_ids: items.map((item) => String(item.id)),
+      contents: items.map((item) => ({
+        id: String(item.id),
+        quantity: Number(item.cantidad || 1),
+        item_price: Number(item.precio || 0),
+      })),
+    })
+  }, [items, totalPrice])
 
   const handleSubmit = async (event) => {
     event.preventDefault()
@@ -54,10 +71,23 @@ export default function CheckoutPage() {
           precio: item.precio,
           cantidad: item.cantidad,
         })),
+        meta_event_id: buildEventId('purchase'),
       }
 
       const response = await ordersService.create(payload)
       const orderData = response?.data
+
+      trackMetaEvent(
+        'Purchase',
+        {
+          currency: 'COP',
+          value: Number(orderData?.total ?? totalPrice ?? 0),
+          content_type: 'product',
+          content_ids: items.map((item) => String(item.id)),
+          num_items: items.reduce((acc, item) => acc + Number(item.cantidad || 0), 0),
+        },
+        payload.meta_event_id,
+      )
 
       const message = buildWhatsAppMessage({
         cliente: form,

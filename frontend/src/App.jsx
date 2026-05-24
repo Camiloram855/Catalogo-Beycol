@@ -1,5 +1,7 @@
-import { Routes, Route } from 'react-router-dom'
+import { useEffect } from 'react'
+import { Routes, Route, useLocation } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
+import { initMetaPixel, trackPageView } from './utils/metaPixel'
 
 // Public
 import PublicLayout from './components/public/Layout'
@@ -18,9 +20,24 @@ import ProductsAdminPage from './pages/admin/ProductsAdminPage'
 import CategoriesAdminPage from './pages/admin/CategoriesAdminPage'
 import SiteTextsAdminPage from './pages/admin/SiteTextsAdminPage'
 
+function MetaPixelTracker() {
+  const location = useLocation()
+
+  useEffect(() => {
+    initMetaPixel()
+  }, [])
+
+  useEffect(() => {
+    trackPageView()
+  }, [location.pathname, location.search])
+
+  return null
+}
+
 export default function App() {
   return (
     <AuthProvider>
+      <MetaPixelTracker />
       <Routes>
         {/* Public site */}
         <Route element={<PublicLayout />}>
