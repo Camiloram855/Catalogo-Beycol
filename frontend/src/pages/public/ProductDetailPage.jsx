@@ -14,19 +14,8 @@ export default function ProductDetailPage() {
   const [activeImage, setActiveImage] = useState(0)
   const [quantity, setQuantity] = useState(1)
   const { addItem } = useCart()
-
-  if (isLoading) return <LoadingPage />
-  if (error || !data?.data) {
-    return (
-      <div className="max-w-7xl mx-auto px-4 py-20 text-center">
-        <p className="text-gray-400">Producto no encontrado.</p>
-        <Link to="/catalogo" className="btn-secondary mt-4">Volver al catalogo</Link>
-      </div>
-    )
-  }
-
-  const product = data.data
-  const images = product.images || []
+  const product = data?.data
+  const images = product?.images || []
 
   useEffect(() => {
     if (!product?.id) return
@@ -39,6 +28,16 @@ export default function ProductDetailPage() {
       value: Number(product.price ?? 0),
     })
   }, [product?.id, product?.name, product?.price])
+
+  if (isLoading) return <LoadingPage />
+  if (error || !data?.data) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 py-20 text-center">
+        <p className="text-gray-400">Producto no encontrado.</p>
+        <Link to="/catalogo" className="btn-secondary mt-4">Volver al catalogo</Link>
+      </div>
+    )
+  }
 
   const handleAddToCart = () => {
     addItem(
