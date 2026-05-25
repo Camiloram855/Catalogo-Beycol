@@ -43,7 +43,7 @@ class DatabaseSeeder extends Seeder
         ];
 
         foreach ($texts as $text) {
-            SiteText::updateOrCreate(['key' => $text['key']], $text);
+            SiteText::firstOrCreate(['key' => $text['key']], $text);
         }
 
         // Sample categories
@@ -79,6 +79,5 @@ class DatabaseSeeder extends Seeder
         $this->command->info('📧 Admin: admin@catalogo.com | 🔑 Contraseña: password');
     }
 }
-
 
 
